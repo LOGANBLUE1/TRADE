@@ -15,7 +15,8 @@ No real money moves anywhere in this project.
 | Plain-language screen (`/api/ai/screen`) and AI credits | Working against a stubbed model; not yet run against a real LLM |
 | Yahoo market data provider | Written, parser unit-tested, never run against the live endpoint |
 | Authentication | Not built. `X-User-Id` header is a development stand-in |
-| RAG over news and filings, React UI, saved screens | Not started |
+| React UI (`web/`): portfolio, order ticket, screener, approvals, activity | Working, checked in a browser |
+| RAG over news and filings, saved screens | Not started |
 
 ## The rule this codebase is built around
 
@@ -44,6 +45,7 @@ How that is enforced:
 | `core` | Market data (`MarketDataProvider`), screener (`FilterSpec`), ledger, order state machine, audit, Flyway schema |
 | `ai` | Plain-language -> `FilterSpec`, AI credits, MCP tools |
 | `app` | Spring Boot application, REST controllers, configuration, integration tests |
+| `web` | React + TypeScript UI (Vite) |
 
 ## Run it
 
@@ -60,6 +62,14 @@ mvn install
 ```bash
 java -jar app/target/app-0.1.0-SNAPSHOT.jar
 ```
+
+Then the UI, in a second terminal (needs Node 20+):
+
+```bash
+cd web && npm install && npm run dev
+```
+
+Open http://localhost:5173. The dev server forwards `/api` to the backend on port 8080.
 
 The app starts with AI switched off and simulated prices. To turn on the plain-language screen:
 
