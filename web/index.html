@@ -3,6 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Applied before first paint so a saved dark choice does not flash light.
+      try { document.documentElement.dataset.theme = localStorage.getItem("theme") === "dark" ? "dark" : "light"; } catch (e) {}
+    </script>
     <title>Paper-Trading Copilot</title>
   </head>
   <body>

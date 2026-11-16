@@ -14,10 +14,10 @@
   --info-bg: #e7effd;
   --error-bg: #fde8e6;
   --radius: 8px;
-  color-scheme: light dark;
+  color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
+:root[data-theme="dark"] {
+    color-scheme: dark;
     --bg: #11151a;
     --surface: #1a2028;
     --border: #2c3542;
@@ -32,7 +32,6 @@
     --ok-bg: #143524;
     --info-bg: #17284a;
     --error-bg: #43201d;
-  }
 }
 
 * { box-sizing: border-box; }
@@ -51,6 +50,7 @@ h2 { font-size: 17px; margin: 24px 0 10px; }
 .down { color: var(--down); }
 
 .topbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand-name { font-size: 19px; font-weight: 650; }
 .badge {

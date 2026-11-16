@@ -12,6 +12,17 @@ export interface Ticket { symbol: string; side: "BUY" | "SELL" }
 
 const REFRESH_MS = 5000;
 
+type Theme = "light" | "dark";
+
+/** Light unless the user switched to dark on this browser before. */
+function savedTheme(): Theme {
+  try {
+    return localStorage.getItem("theme") === "dark" ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+}
+
 export function App() {
   const [tab, setTab] = useState<Tab>("portfolio");
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
@@ -20,6 +31,16 @@ export function App() {
   const [entitlements, setEntitlements] = useState<Entitlements | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [ticket, setTicket] = useState<Ticket | null>(null);
+  const [theme, setTheme] = useState<Theme>(savedTheme);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem("theme", theme);
+    } catch {
+      /* private mode: the choice just lasts for this visit */
+    }
+  }, [theme]);
 
   // Core data and AI status load independently: an AI problem must never blank the trading screens.
   const refresh = useCallback(async () => {
@@ -50,7 +71,13 @@ export function App() {
           <span className="brand-name">Paper-Trading Copilot</span>
           <span className="badge badge-warn" title="No real money is involved">Paper money</span>
         </div>
-        <AiStatus entitlements={entitlements} />
+        <div className="topbar-right">
+          <AiStatus entitlements={entitlements} />
+          <button className="btn btn-small" aria-pressed={theme === "dark"}
+                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+            {theme === "dark" ? "Light mode" : "Dark mode"}
+          </button>
+        </div>
       </header>
 
       <nav className="tabs" aria-label="Sections">
