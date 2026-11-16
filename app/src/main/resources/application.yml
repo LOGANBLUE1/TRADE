@@ -1,0 +1,73 @@
+spring:
+  application:
+    name: paper-trading-copilot
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/copilot}
+    username: ${DB_USER:copilot}
+    password: ${DB_PASSWORD:copilot}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  ai:
+    # AI is off until a provider is chosen: set COPILOT_CHAT_MODEL=anthropic and ANTHROPIC_API_KEY.
+    # With "none" the app starts and every non-AI feature works.
+    model:
+      chat: ${COPILOT_CHAT_MODEL:none}
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:not-set}
+      chat:
+        options:
+          model: ${ANTHROPIC_MODEL:claude-fable-5-2}
+          max-tokens: 1024
+    mcp:
+      server:
+        name: paper-trading-copilot
+        version: 0.1.0
+        protocol: STREAMABLE
+        annotation-scanner:
+          enabled: false   # tools are registered explicitly in McpToolsConfig
+
+copilot:
+  market-data:
+    provider: ${MARKET_DATA_PROVIDER:simulated}   # simulated | yahoo
+    cache-ttl: 60s
+  universe:
+    equities:
+      - RELIANCE.NS
+      - TCS.NS
+      - INFY.NS
+      - HDFCBANK.NS
+      - ICICIBANK.NS
+      - SBIN.NS
+      - ITC.NS
+      - LT.NS
+      - BHARTIARTL.NS
+      - HINDUNILVR.NS
+      - TATAMOTORS.NS
+      - SUNPHARMA.NS
+      - MARUTI.NS
+      - AXISBANK.NS
+      - COALINDIA.NS
+      - ONGC.NS
+    fx:
+      - GBPUSD=X
+      - USDINR=X
+      - GBPINR=X
+      - EURUSD=X
+  trading:
+    starting-cash: 1000000
+    max-order-value: 200000
+    max-order-quantity: 10000
+    max-daily-orders: 20
+    approval-ttl: 15m
+    max-slippage-pct: 2
+  ai:
+    starting-credits: 20
+    mcp-user-id: demo
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
