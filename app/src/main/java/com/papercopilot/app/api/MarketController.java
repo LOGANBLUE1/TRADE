@@ -32,10 +32,11 @@ public class MarketController {
         this.instruments = instruments;
     }
 
-    /** All allowed stocks and FX pairs with prices; ?q= searches symbol and name. */
+    /** All allowed stocks and FX pairs with prices; ?q= searches symbol, name and industry. */
     @GetMapping("/instruments")
-    public List<InstrumentView> instruments(@RequestParam(required = false) String q) {
-        return instruments.list(q);
+    public List<InstrumentView> instruments(@RequestParam(required = false) String q,
+                                            @RequestParam(required = false) Integer limit) {
+        return instruments.list(q, limit);
     }
 
     @GetMapping("/instruments/{symbol}")

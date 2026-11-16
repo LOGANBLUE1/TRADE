@@ -20,9 +20,13 @@ export interface Snapshot {
   marketCapCr: number | null; volume: number | null; avgVolume20d: number | null;
   sma50: number | null; sma200: number | null; quote: Quote;
 }
-export interface Instrument { type: "EQUITY" | "FX"; tradable: boolean; data: Snapshot }
+/** data is null while no price is loaded for the instrument. */
+export interface Instrument {
+  symbol: string; name: string; industry: string | null; type: "EQUITY" | "FX"; tradable: boolean;
+  data: Snapshot | null;
+}
 export interface ScreenResult {
-  filter: FilterSpec; universeSize: number; unavailable: number; matches: Snapshot[]; asOf: string;
+  filter: FilterSpec; universeSize: number; unavailable: number; totalMatches: number; matches: Snapshot[]; asOf: string;
 }
 export interface Position {
   symbol: string; quantity: number; avgCost: number; lastPrice: number | null;
@@ -80,7 +84,9 @@ const post = <T,>(path: string, body?: unknown, headers?: Record<string, string>
 export const api = {
   entitlements: () => call<Entitlements>("/api/me/entitlements"),
   quote: (symbol: string) => call<Quote>(`/api/quotes/${encodeURIComponent(symbol)}`),
-  instruments: (q = "") => call<Instrument[]>(`/api/instruments${q ? `?q=${encodeURIComponent(q)}` : ""}`),
+  instruments: () => call<Instrument[]>("/api/instruments"),
+  searchInstruments: (q: string, limit: number) =>
+    call<Instrument[]>(`/api/instruments?q=${encodeURIComponent(q)}&limit=${limit}`),
   instrument: (symbol: string) => call<Instrument>(`/api/instruments/${encodeURIComponent(symbol)}`),
   portfolio: () => call<Portfolio>("/api/portfolio"),
   orders: () => call<Order[]>("/api/orders"),

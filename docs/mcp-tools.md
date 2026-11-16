@@ -49,9 +49,10 @@ Input: a `filter`. Each condition has `field`, `op`, and exactly one of `value` 
 - Ops: `LT`, `LTE`, `GT`, `GTE`
 - At most 12 conditions; `limit` 1-100.
 
-Output: `{filter, universeSize, unavailable, matches: [...], asOf}`. Each match carries `symbol`, `name`,
+Output: `{filter, universeSize, unavailable, totalMatches, matches: [...], asOf}`. `matches` holds at most
+`limit` rows (100 if not given); `totalMatches` is the full count. Each match carries `symbol`, `name`,
 `price`, `changePct`, `pe`, `marketCapCr`, `volume`, `avgVolume20d`, `sma50`, `sma200` and its `quote`.
-`unavailable` counts symbols with no data at the moment. Errors: `INVALID_FILTER`.
+`unavailable` counts stocks with no price data loaded at the moment, which could not be checked. Errors: `INVALID_FILTER`.
 
 ## get_portfolio
 

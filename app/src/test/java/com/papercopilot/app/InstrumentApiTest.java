@@ -1,6 +1,7 @@
 package com.papercopilot.app;
 
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -32,17 +33,23 @@ class InstrumentApiTest {
     @Test
     void searchMatchesNameOrSymbol_caseInsensitive() throws Exception {
         mvc.perform(get("/api/instruments").param("q", "bank")).andExpect(status().isOk())
-                .andExpect(jsonPath("$[*].data.symbol").value(
-                        contains("HDFCBANK.NS", "ICICIBANK.NS", "SBIN.NS", "AXISBANK.NS")));
+                .andExpect(jsonPath("$[*].symbol").value(
+                        containsInAnyOrder("HDFCBANK.NS", "ICICIBANK.NS", "SBIN.NS", "AXISBANK.NS")));
         mvc.perform(get("/api/instruments").param("q", "gbp"))
-                .andExpect(jsonPath("$[*].data.symbol").value(contains("GBPUSD=X", "GBPINR=X")));
+                .andExpect(jsonPath("$[*].symbol").value(contains("GBPUSD=X", "GBPINR=X")));
         mvc.perform(get("/api/instruments").param("q", "zzz")).andExpect(jsonPath("$.length()").value(0));
+        mvc.perform(get("/api/instruments").param("q", "sb"))          // symbol prefix ranks first
+                .andExpect(jsonPath("$[0].symbol").value("SBIN.NS"))
+                .andExpect(jsonPath("$[0].name").value("State Bank of India"))
+                .andExpect(jsonPath("$[0].industry").value("Financial Services"));
+        mvc.perform(get("/api/instruments").param("q", "bank").param("limit", "2"))
+                .andExpect(jsonPath("$.length()").value(2));
     }
 
     @Test
     void detailBySymbol_andUnknownSymbolIsRejected() throws Exception {
         mvc.perform(get("/api/instruments/tcs")).andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.symbol").value("TCS.NS"))
+                .andExpect(jsonPath("$.symbol").value("TCS.NS"))
                 .andExpect(jsonPath("$.data.pe").value(26.3))
                 .andExpect(jsonPath("$.data.quote.source").value("SIMULATED"));
         mvc.perform(get("/api/instruments/NOPE")).andExpect(status().isUnprocessableEntity())

@@ -28,6 +28,7 @@ import com.papercopilot.core.marketdata.InstrumentSnapshot;
 import com.papercopilot.core.marketdata.MarketDataProvider;
 import com.papercopilot.core.marketdata.Quote;
 import com.papercopilot.core.marketdata.SimulatedMarketDataProvider;
+import com.papercopilot.core.marketdata.SymbolUniverse;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class TestSupport {
@@ -47,8 +48,8 @@ public class TestSupport {
 
     @Bean
     @Primary
-    MutableMarketData testMarketData(MutableClock clock) {
-        return new MutableMarketData(clock);
+    MutableMarketData testMarketData(MutableClock clock, SymbolUniverse universe) {
+        return new MutableMarketData(clock, universe);
     }
 
     @Bean
@@ -74,7 +75,9 @@ public class TestSupport {
         private final SimulatedMarketDataProvider delegate;
         private final Map<String, BigDecimal> prices = new ConcurrentHashMap<>();
 
-        MutableMarketData(Clock clock) { this.delegate = new SimulatedMarketDataProvider(clock); }
+        MutableMarketData(Clock clock, SymbolUniverse universe) {
+            this.delegate = new SimulatedMarketDataProvider(clock, universe);
+        }
 
         public void setPrice(String symbol, String price) { prices.put(symbol, new BigDecimal(price)); }
         public void reset() { prices.clear(); }

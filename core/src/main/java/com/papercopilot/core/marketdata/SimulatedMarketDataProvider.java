@@ -6,10 +6,12 @@ import java.time.Clock;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 
 /**
- * Fixed, made-up numbers for local development and tests. These are NOT real market prices;
- * every quote is labelled source=SIMULATED so the UI can say so.
+ * Made-up numbers for local development and tests. These are NOT real market prices; every quote is
+ * labelled source=SIMULATED so the UI can say so. A few symbols have hand-written rows; every other
+ * symbol in the universe gets stable pseudo-random values derived from its symbol.
  */
 public class SimulatedMarketDataProvider implements MarketDataProvider {
 
@@ -51,24 +53,52 @@ public class SimulatedMarketDataProvider implements MarketDataProvider {
     }
 
     private final Clock clock;
+    private final SymbolUniverse universe;
 
-    public SimulatedMarketDataProvider(Clock clock) {
+    public SimulatedMarketDataProvider(Clock clock, SymbolUniverse universe) {
         this.clock = clock;
+        this.universe = universe;
     }
 
     @Override
     public Optional<InstrumentSnapshot> snapshot(String symbol) {
+        Optional<InstrumentInfo> info = universe.info(symbol);
+        if (info.isEmpty()) {
+            return Optional.empty();
+        }
         Row r = DATA.get(symbol);
         if (r == null) {
-            return Optional.empty();
+            if (!info.get().tradable()) {
+                return Optional.empty();
+            }
+            r = generate(symbol, info.get().name());
         }
         BigDecimal price = BigDecimal.valueOf(r.price);
         BigDecimal prev = BigDecimal.valueOf(r.prevClose);
         BigDecimal changePct = price.subtract(prev).multiply(BigDecimal.valueOf(100))
                 .divide(prev, 2, RoundingMode.HALF_UP);
-        Quote quote = new Quote(symbol, r.name, price, prev, changePct, r.currency, clock.instant(), false, "SIMULATED");
-        return Optional.of(new InstrumentSnapshot(symbol, r.name, price, changePct, bd(r.pe), bd(r.mcapCr),
+        String name = info.get().name();
+        Quote quote = new Quote(symbol, name, price, prev, changePct, r.currency, clock.instant(), false, "SIMULATED");
+        return Optional.of(new InstrumentSnapshot(symbol, name, price, changePct, bd(r.pe), bd(r.mcapCr),
                 bd(r.volume), bd(r.avgVolume), bd(r.sma50), bd(r.sma200), quote));
+    }
+
+    /** Same symbol, same numbers, on every run. */
+    private static Row generate(String symbol, String name) {
+        Random rnd = new Random(symbol.hashCode() * 2654435761L);
+        double price = round2(40 * Math.pow(150, rnd.nextDouble()));            // 40 .. 6000, skewed low
+        double prev = round2(price / (1 + (rnd.nextDouble() - 0.48) * 0.06));   // -2.9% .. +3.1% today
+        double pe = Math.round((6 + 70 * Math.pow(rnd.nextDouble(), 2)) * 10) / 10.0;
+        double mcapCr = Math.round(4000 * Math.pow(120, rnd.nextDouble()));
+        double avgVolume = Math.round(50_000 * Math.pow(200, rnd.nextDouble()));
+        double volume = Math.round(avgVolume * (0.5 + rnd.nextDouble() * 1.2));
+        double sma50 = round2(price * (0.9 + rnd.nextDouble() * 0.2));
+        double sma200 = round2(price * (0.8 + rnd.nextDouble() * 0.4));
+        return new Row(name, "INR", price, prev, pe, mcapCr, volume, avgVolume, sma50, sma200);
+    }
+
+    private static double round2(double v) {
+        return Math.round(v * 100) / 100.0;
     }
 
     private static BigDecimal bd(Double d) {

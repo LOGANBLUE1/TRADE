@@ -175,3 +175,4 @@ h1 { font-size: 24px; margin: 0; }
 @media (max-width: 600px) {
   .detail-price { text-align: left; }
 }
+.wrap { white-space: normal; min-width: 150px; }

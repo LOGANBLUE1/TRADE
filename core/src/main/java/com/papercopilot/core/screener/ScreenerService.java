@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.papercopilot.core.error.DomainException;
 import com.papercopilot.core.error.ErrorCode;
+import com.papercopilot.core.marketdata.InstrumentInfo;
 import com.papercopilot.core.marketdata.InstrumentSnapshot;
 import com.papercopilot.core.marketdata.MarketDataProvider;
 import com.papercopilot.core.marketdata.SymbolUniverse;
@@ -38,8 +39,8 @@ public class ScreenerService {
         validate(spec);
         List<InstrumentSnapshot> matches = new ArrayList<>();
         int unavailable = 0;
-        for (String symbol : universe.equities()) {
-            Optional<InstrumentSnapshot> snap = provider.snapshot(symbol);
+        for (InstrumentInfo info : universe.equities()) {
+            Optional<InstrumentSnapshot> snap = provider.scanSnapshot(info.symbol());
             if (snap.isEmpty()) {
                 unavailable++;
             } else if (spec.conditions().stream().allMatch(c -> matches(snap.get(), c))) {
@@ -52,7 +53,7 @@ public class ScreenerService {
             matches.sort(Boolean.FALSE.equals(spec.sortDescending()) ? cmp : cmp.reversed());
         }
         int limit = spec.limit() == null ? MAX_LIMIT : spec.limit();
-        return new ScreenResult(spec, universe.equities().size(), unavailable,
+        return new ScreenResult(spec, universe.equities().size(), unavailable, matches.size(),
                 List.copyOf(matches.subList(0, Math.min(limit, matches.size()))), clock.instant());
     }
 

@@ -31,25 +31,13 @@ spring:
 copilot:
   market-data:
     provider: ${MARKET_DATA_PROVIDER:simulated}   # simulated | yahoo
-    cache-ttl: 60s
+    cache-ttl: 60s        # oldest quote a trade or single lookup may use
+    warm-interval: 15m    # remote providers: how often the whole universe is re-fetched in the background
+    warm-pause: 1s        # remote providers: wait between two requests, to respect rate limits
   universe:
-    equities:
-      - RELIANCE.NS
-      - TCS.NS
-      - INFY.NS
-      - HDFCBANK.NS
-      - ICICIBANK.NS
-      - SBIN.NS
-      - ITC.NS
-      - LT.NS
-      - BHARTIARTL.NS
-      - HINDUNILVR.NS
-      - TATAMOTORS.NS
-      - SUNPHARMA.NS
-      - MARUTI.NS
-      - AXISBANK.NS
-      - COALINDIA.NS
-      - ONGC.NS
+    # NSE's official constituent file. Replace it with a fresh download when the index is rebalanced:
+    # https://www.niftyindices.com/IndexConstituent/ind_nifty500list.csv
+    equities-file: classpath:universe/nifty500.csv
     fx:
       - GBPUSD=X
       - USDINR=X

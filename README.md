@@ -13,7 +13,8 @@ No real money moves anywhere in this project.
 | Approval flow: `propose_trade` -> user approves -> `execute_trade` | Working, tested |
 | MCP server with 6 tools at `/mcp` | Working |
 | Plain-language screen (`/api/ai/screen`) and AI credits | Working against a stubbed model; not yet run against a real LLM |
-| Yahoo market data provider | Written, parser unit-tested, never run against the live endpoint |
+| Stock universe: NIFTY 500 (501 constituents) from NSE's official file | Working, tested |
+| Yahoo market data provider | Ran live for 30 seconds: real prices loaded for the first 29 stocks. A full 500-stock pass has not been observed |
 | Authentication | Not built. `X-User-Id` header is a development stand-in |
 | React UI (`web/`): portfolio, market prices, stock search and detail, order ticket, screener, approvals, activity | Working, checked in a browser |
 | RAG over news and filings, saved screens | Not started |
@@ -78,7 +79,16 @@ COPILOT_CHAT_MODEL=anthropic ANTHROPIC_API_KEY=... java -jar app/target/app-0.1.
 ```
 
 `ANTHROPIC_MODEL` picks the model; choose a cheaper one if cost per screen matters.
-`MARKET_DATA_PROVIDER=yahoo` switches to delayed Yahoo data.
+`MARKET_DATA_PROVIDER=yahoo` switches to delayed Yahoo data. Prices then load in the background at one
+request a second, so the full NIFTY 500 takes about 9 minutes after start-up; until then the screener
+reports how many stocks it could not check.
+
+## Stock universe
+
+`core/src/main/resources/universe/nifty500.csv` is NSE's constituent file, downloaded 16 Nov 2026 from
+https://www.niftyindices.com/IndexConstituent/ind_nifty500list.csv. The index is rebalanced twice a
+year; replace the file with a fresh download to follow it. Any CSV in the same format works, set through
+`copilot.universe.equities-file`.
 
 ## REST API (works without AI)
 
@@ -86,7 +96,7 @@ All take an optional `X-User-Id` header (default `demo`).
 
 | Method and path | Purpose |
 |---|---|
-| `GET /api/instruments?q=` | All allowed stocks and FX pairs with prices; `q` searches symbol and name |
+| `GET /api/instruments?q=` | All allowed stocks and FX pairs with prices; `q` searches symbol, name and industry, `limit` caps results |
 | `GET /api/instruments/{symbol}` | One instrument's details (price, PE, market cap, volume, averages) |
 | `GET /api/quotes/{symbol}` | Quote for an allowed symbol (`RELIANCE`, `TCS.NS`, `GBPUSD=X`) |
 | `POST /api/screens/run` | Run a `FilterSpec` |
@@ -133,8 +143,10 @@ MCP tools are described in [docs/mcp-tools.md](docs/mcp-tools.md).
 
 - **No authentication.** Anyone who can reach the server can act as any user, and the MCP endpoint acts as
   `copilot.ai.mcp-user-id`. Do not expose this beyond localhost until real auth is in place.
-- **Simulated prices are invented**, fixed numbers. They are labelled `source: SIMULATED`.
+- **Simulated prices are invented.** Sixteen stocks have hand-written numbers; the rest of the NIFTY 500 get
+  stable pseudo-random ones. All are labelled `source: SIMULATED`.
 - **Yahoo gives no PE or market cap** through the endpoint used, so screens on those fields return nothing
-  with that provider. It is also unofficial and unlicensed: fine for a personal demo, not for a product.
+  with that provider. It is also unofficial, unlicensed and rate-limited (it answered 429 to some
+  requests during development): fine for a personal demo, not for a product.
 - **FX pairs are quote-only.** The ledger is single-currency (INR).
 - Market orders only; fills are instant at the quoted price with no fees or market-hours check.

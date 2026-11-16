@@ -27,6 +27,7 @@ export function StockDetail(props: {
   const back = <button className="link" onClick={props.onBack}>← Back</button>;
   if (error && !item) return <section>{back}<div className="notice notice-error" role="alert">{error}</div></section>;
   if (!item) return <section>{back}<p className="muted">Loading {props.symbol}…</p></section>;
+  if (!item.data) return <section>{back}<p className="muted">No price data is loaded for {item.name} yet.</p></section>;
 
   const s = item.data;
   const q = s.quote;
@@ -43,8 +44,8 @@ export function StockDetail(props: {
 
       <div className="detail-head">
         <div>
-          <h1>{s.name}</h1>
-          <div className="muted">{s.symbol} · {isFx ? "Currency pair" : "NSE stock"}</div>
+          <h1>{item.name}</h1>
+          <div className="muted">{s.symbol} · {isFx ? "Currency pair" : `NSE stock${item.industry ? " · " + item.industry : ""}`}</div>
         </div>
         <div className="detail-price">
           <div className="detail-price-value">{price(s.price)}{isFx && <span className="muted small"> {q.currency}</span>}</div>

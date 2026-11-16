@@ -145,8 +145,13 @@ export function Screener(props: {
       {result && (
         <>
           <h2>
-            {result.matches.length} of {result.universeSize} stocks match
-            {result.unavailable > 0 && <span className="muted small"> · {result.unavailable} had no data</span>}
+            {result.totalMatches} of {result.universeSize} stocks match
+            {result.totalMatches > result.matches.length && (
+              <span className="muted small"> · showing the first {result.matches.length}</span>
+            )}
+            {result.unavailable > 0 && (
+              <span className="muted small"> · {result.unavailable} could not be checked (no price data loaded yet)</span>
+            )}
           </h2>
           {result.matches.length === 0 ? (
             <p className="muted">Nothing matches. Loosen or remove a filter and run it again.</p>
