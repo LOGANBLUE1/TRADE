@@ -1,7 +1,7 @@
 import { fmt, type Portfolio } from "./api";
 import type { Ticket } from "./App";
 
-export function PortfolioView(props: { portfolio: Portfolio | null; onTrade: (t: Ticket) => void }) {
+export function PortfolioView(props: { portfolio: Portfolio | null; onTrade: (t: Ticket) => void; onOpen: (symbol: string) => void }) {
   const p = props.portfolio;
   if (!p) return <p className="muted">Loading your account…</p>;
 
@@ -35,7 +35,7 @@ export function PortfolioView(props: { portfolio: Portfolio | null; onTrade: (t:
             <tbody>
               {p.positions.map((x) => (
                 <tr key={x.symbol}>
-                  <td className="sym">{x.symbol}</td>
+                  <td><button className="link sym" onClick={() => props.onOpen(x.symbol)}>{x.symbol}</button></td>
                   <td className="r">{fmt.num(x.quantity)}</td>
                   <td className="r">{fmt.money(x.avgCost)}</td>
                   <td className="r">{x.lastPrice == null ? "No quote" : fmt.money(x.lastPrice)}</td>

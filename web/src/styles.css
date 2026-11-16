@@ -139,3 +139,39 @@ label input { display: block; width: 100%; margin-top: 4px; font-weight: 400; }
 .seg-sell { background: var(--down); color: var(--surface); }
 .quote-line { min-height: 22px; font-size: 14px; margin-top: 6px; }
 .summary { display: flex; justify-content: space-between; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); font-size: 16px; }
+
+.link { background: none; border: none; padding: 0; font: inherit; color: var(--accent); cursor: pointer; }
+.link:hover { text-decoration: underline; }
+.link.sym { font-weight: 600; }
+tr.clickable { cursor: pointer; }
+tr.clickable:hover td { background: var(--bg); }
+
+.search { position: relative; flex: 1 1 260px; max-width: 420px; }
+.search input { width: 100%; }
+.search-results {
+  position: absolute; z-index: 5; top: calc(100% + 4px); left: 0; right: 0; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 8px 24px rgba(8, 12, 18, 0.18);
+  overflow: hidden;
+}
+.search-item {
+  display: flex; justify-content: space-between; gap: 12px; width: 100%; padding: 9px 12px; border: none;
+  background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+.search-item > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.search-item > span:last-child { white-space: nowrap; }
+.search-item-active { background: var(--bg); }
+.search-note { padding: 10px 12px; color: var(--muted); font-size: 14px; }
+
+h1 { font-size: 24px; margin: 0; }
+.detail-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin: 12px 0 6px; }
+.detail-price { text-align: right; font-variant-numeric: tabular-nums; }
+.detail-price-value { font-size: 28px; font-weight: 650; }
+.detail-actions { margin-top: 14px; }
+.detail-actions .btn { min-width: 96px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.fact { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+.fact-value { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; margin-top: 2px; }
+@media (max-width: 600px) {
+  .detail-price { text-align: left; }
+}

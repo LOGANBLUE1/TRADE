@@ -43,4 +43,8 @@ public class SymbolUniverse {
     public Set<String> equities() {
         return equities;
     }
+
+    public Set<String> fx() {
+        return fx;
+    }
 }

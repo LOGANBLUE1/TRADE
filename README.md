@@ -15,7 +15,7 @@ No real money moves anywhere in this project.
 | Plain-language screen (`/api/ai/screen`) and AI credits | Working against a stubbed model; not yet run against a real LLM |
 | Yahoo market data provider | Written, parser unit-tested, never run against the live endpoint |
 | Authentication | Not built. `X-User-Id` header is a development stand-in |
-| React UI (`web/`): portfolio, order ticket, screener, approvals, activity | Working, checked in a browser |
+| React UI (`web/`): portfolio, market prices, stock search and detail, order ticket, screener, approvals, activity | Working, checked in a browser |
 | RAG over news and filings, saved screens | Not started |
 
 ## The rule this codebase is built around
@@ -86,6 +86,8 @@ All take an optional `X-User-Id` header (default `demo`).
 
 | Method and path | Purpose |
 |---|---|
+| `GET /api/instruments?q=` | All allowed stocks and FX pairs with prices; `q` searches symbol and name |
+| `GET /api/instruments/{symbol}` | One instrument's details (price, PE, market cap, volume, averages) |
 | `GET /api/quotes/{symbol}` | Quote for an allowed symbol (`RELIANCE`, `TCS.NS`, `GBPUSD=X`) |
 | `POST /api/screens/run` | Run a `FilterSpec` |
 | `GET /api/portfolio` | Cash, positions, valuation |

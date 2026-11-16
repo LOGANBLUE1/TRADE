@@ -20,6 +20,7 @@ export interface Snapshot {
   marketCapCr: number | null; volume: number | null; avgVolume20d: number | null;
   sma50: number | null; sma200: number | null; quote: Quote;
 }
+export interface Instrument { type: "EQUITY" | "FX"; tradable: boolean; data: Snapshot }
 export interface ScreenResult {
   filter: FilterSpec; universeSize: number; unavailable: number; matches: Snapshot[]; asOf: string;
 }
@@ -79,6 +80,8 @@ const post = <T,>(path: string, body?: unknown, headers?: Record<string, string>
 export const api = {
   entitlements: () => call<Entitlements>("/api/me/entitlements"),
   quote: (symbol: string) => call<Quote>(`/api/quotes/${encodeURIComponent(symbol)}`),
+  instruments: (q = "") => call<Instrument[]>(`/api/instruments${q ? `?q=${encodeURIComponent(q)}` : ""}`),
+  instrument: (symbol: string) => call<Instrument>(`/api/instruments/${encodeURIComponent(symbol)}`),
   portfolio: () => call<Portfolio>("/api/portfolio"),
   orders: () => call<Order[]>("/api/orders"),
   audit: () => call<AuditEvent[]>("/api/audit"),
@@ -98,6 +101,8 @@ export const fmt = {
   price: (v: number | null | undefined, currency = "INR") =>
     v == null ? "–" : currency === "INR" ? inr.format(v) : `${num.format(v)} ${currency}`,
   num: (v: number | null | undefined) => (v == null ? "–" : num.format(v)),
+  /** Exchange rates need more decimals than share prices. */
+  num4: (v: number | null | undefined) => (v == null ? "–" : v.toFixed(4)),
   pct: (v: number | null | undefined) => (v == null ? "–" : `${v > 0 ? "+" : ""}${v.toFixed(2)}%`),
   time: (iso: string | null | undefined) =>
     iso ? new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "–",

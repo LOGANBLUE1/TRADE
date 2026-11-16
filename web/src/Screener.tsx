@@ -40,6 +40,7 @@ const toRows = (f: FilterSpec): Row[] =>
 export function Screener(props: {
   entitlements: Entitlements | null;
   onTrade: (t: Ticket) => void;
+  onOpen: (symbol: string) => void;
   onAiUsed: () => void;
 }) {
   const [rows, setRows] = useState<Row[]>(STARTER);
@@ -161,7 +162,7 @@ export function Screener(props: {
                 <tbody>
                   {result.matches.map((m) => (
                     <tr key={m.symbol}>
-                      <td className="sym">{m.symbol}</td>
+                      <td><button className="link sym" onClick={() => props.onOpen(m.symbol)}>{m.symbol}</button></td>
                       <td>{m.name}</td>
                       <td className="r">{fmt.money(m.price)}</td>
                       <td className={"r " + (m.changePct != null && m.changePct < 0 ? "down" : "up")}>{fmt.pct(m.changePct)}</td>
